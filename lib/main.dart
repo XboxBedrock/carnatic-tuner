@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Carnatic Tuner',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -222,12 +223,12 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> createUpperDots() {
     return [
       Container(
-        child: Positioned(bottom:17, child: RichText(
+        child: Positioned(bottom: SizeConfig.screenHeight * 0.0248, child: RichText(
 
               text: TextSpan(
                   style: TextStyle(
-                    color: noteTimeout? Colors.white: (carnaticOctave > 0 ? Colors.blue : Colors.white),
-                    fontSize: 75,
+                    color: noteTimeout? Colors.white.withOpacity(0): (carnaticOctave > 0 ? Colors.blue : Colors.white.withOpacity(0)),
+                    fontSize: SizeConfig.screenHeight * 0.11,
                     fontFamily: 'Arial',
 
                   ),
@@ -240,8 +241,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       child:
                        Text(
                           carnaticNote.every((e) {return e.subscript == null;})? "": "1",
-                          style: const TextStyle(
-                              fontSize: 30,
+                          style: TextStyle(
+                              fontSize: SizeConfig.screenHeight * 0.045,
                               fontFamily: 'RobotoMono',
                               color: Colors.white),
                         ),
@@ -254,12 +255,12 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> createLowerDots() {
     return [
       Container(
-          child: Positioned(bottom:-65, child: RichText(
+          child: Positioned(bottom: SizeConfig.screenHeight * -0.0951, child: RichText(
 
               text: TextSpan(
                   style: TextStyle(
-                    color: noteTimeout? Colors.white: (carnaticOctave < 0 ? Colors.blue : Colors.white),
-                    fontSize: 75,
+                    color: noteTimeout? Colors.white.withOpacity(0): (carnaticOctave < 0 ? Colors.blue : Colors.white.withOpacity(0)),
+                    fontSize: SizeConfig.screenHeight * 0.11,
                     fontFamily: 'Arial',
 
                   ),
@@ -272,8 +273,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       child:
                       Text(
                         carnaticNote.every((e) {return e.subscript == null;})? "": "1",
-                        style: const TextStyle(
-                            fontSize: 30,
+                        style: TextStyle(
+                            fontSize: SizeConfig.screenHeight * 0.045,
                             fontFamily: 'RobotoMono',
                             color: Colors.white),
                       ),
@@ -292,8 +293,8 @@ class _MyHomePageState extends State<MyHomePage> {
         noteWidgets.add(RichText(
             text: TextSpan(
                 style: TextStyle(
-                  color: noteTimeout? Colors.white: Colors.grey,
-                  fontSize: 75,
+                  color: noteTimeout? Colors.white.withOpacity(0): Colors.grey,
+                  fontSize: SizeConfig.screenHeight * 0.11,
                   fontFamily: 'Arial',
                 ),
                 children: const [
@@ -308,8 +309,8 @@ class _MyHomePageState extends State<MyHomePage> {
         RichText(
             text: TextSpan(
                 style: TextStyle(
-                  color: noteTimeout? Colors.white: Colors.blue,
-                  fontSize: 75,
+                  color: noteTimeout? Colors.white.withOpacity(0): Colors.blue,
+                  fontSize: SizeConfig.screenHeight * 0.11,
                   fontFamily: 'Arial',
                 ),
                 children: [
@@ -318,13 +319,13 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               WidgetSpan(
                 child: Transform.translate(
-                  offset: const Offset(0.0, -7.0),
+                  offset: Offset(0.0, SizeConfig.screenHeight * -0.0102),
                   child: Text(
                     note.subscript != null ? note.subscript.toString() : "",
                     style: TextStyle(
-                        fontSize: 30,
+                        fontSize: SizeConfig.screenHeight * 0.045,
                         fontFamily: 'RobotoMono',
-                        color: noteTimeout? Colors.white: Colors.grey),
+                        color: noteTimeout? Colors.white.withOpacity(0): Colors.grey),
                   ),
                 ),
               )
@@ -339,12 +340,12 @@ class _MyHomePageState extends State<MyHomePage> {
           activeTrackColor: noteTimeout? Colors.grey :  centsColor(centsOff),
           inactiveTrackColor: noteTimeout? Colors.grey : centsColor(centsOff),
           trackShape: CustomTrackShape(),
-          trackHeight: 27,
+          trackHeight: SizeConfig.screenHeight * 0.038,
           thumbColor: noteTimeout? Colors.grey : centsColor(centsOff),
           thumbShape:
-              CustomSliderThumbCircle(thumbRadius: 15, max: 50, min: -50),
+              CustomSliderThumbCircle(thumbRadius: SizeConfig.screenHeight * 0.022, max: 50, min: -50),
           overlayColor: Colors.red.withAlpha(32),
-          overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
+          overlayShape: RoundSliderOverlayShape(overlayRadius: SizeConfig.screenHeight * 0.0409),
         ),
         child: Slider(
           min: 0.0,
@@ -374,16 +375,21 @@ class _MyHomePageState extends State<MyHomePage> {
     for (List<String> notes in noteGrid) {
       List<Widget> rowChildren = [];
       for (String note in notes) {
-        rowChildren.add(FloatingActionButton(
+        rowChildren.add(SizedBox(
+            height: SizeConfig.screenHeight * 0.1,
+            width: SizeConfig.screenHeight * 0.1,
+
+            child: FloatingActionButton(
           onPressed: shrutiFunction(noteCounter),
           foregroundColor: Colors.blue,
           child: SizedBox(
+
               child: Text(note,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Colors.white,
-                      fontSize: 25,
+                      fontSize: SizeConfig.screenHeight * 0.0366,
                       fontFamily: "MusGlyphs"))),
-        ));
+        )));
         noteCounter++;
       }
       children.add(Row(
@@ -399,6 +405,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     _startCapture();
     loadRagas();
     // This method is rerun every time setState is called, for instance as done
@@ -422,9 +429,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   // Center is a layout widget. It takes a single child and positions it
                   // in the middle of the parent.
                   child: Container(
-                      height: 250, //or whatever you want
-                      width: 900, //or whatever you want
-                      padding: const EdgeInsets.all(24.0),
+                      height: SizeConfig.screenHeight * 0.4, //or whatever you want
+                      width: SizeConfig.screenWidth * 0.95, //or whatever you want
+                      padding: EdgeInsets.all(SizeConfig.screenWidth * 0.01),
                       child: createButtonGrid())),
               //Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children:[CustomSwitch(
                 //  key: const Key("slider"),
