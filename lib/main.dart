@@ -244,7 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           style: TextStyle(
                               fontSize: SizeConfig.screenHeight * 0.045,
                               fontFamily: 'RobotoMono',
-                              color: Colors.white),
+                              color: Colors.white.withOpacity(0)),
                         ),
                     )
           ]))))
