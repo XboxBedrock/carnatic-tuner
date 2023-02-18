@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Need microphone access to capture audio</string>
 	<key>CFBundleDisplayName</key>
 	<string>Newtuner</string>
 	<key>CFBundleExecutable</key>
