@@ -420,7 +420,8 @@ class _MyHomePageState extends State<MyHomePage> {
           // the App.build method, and use it to set our appbar title.
           title: Text("${widget.title} - ${showNotes[activeShruti]}"),
         ),
-        body: Column(
+        body: SafeArea(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -438,7 +439,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   //activeColor: Colors.blue,
                   //value: melakarta,
                   //onChanged: setMelakarta), DropdownMenu(dropdownMenuEntries: [new DropdownMenuEntry(value: "e", label: "e")])])
-            ]));
+            ])));
   }
 
   @override
