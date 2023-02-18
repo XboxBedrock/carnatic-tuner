@@ -45,6 +45,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
+        fontFamily: "MusGlyphs",
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Carnatic Tuner'),
@@ -81,6 +82,23 @@ class _MyHomePageState extends State<MyHomePage> {
   List<CarnaticNote> carnaticNote = [CarnaticNote("S", 0, "Shadjam", null)];
   int carnaticOctave = 0;
   double centsOff = 0.0;
+  bool noteTimeout = true;
+  Timer? _delay;
+
+  List<String> showNotes = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B"
+  ];
 
   late Map<String , dynamic> ragas = {};
 
@@ -90,6 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ragas = json.decode(data);
     });
   }
+
+
 
   List<List<CarnaticNote>> relatives = [
     [CarnaticNote("S", 0, "Shadjam", null)],
@@ -164,6 +184,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
           centsOff = res.diffCents;
+          noteTimeout = false;
+
+        });
+
+        _delay?.cancel();
+
+        _delay = Timer(const Duration(seconds: 1, milliseconds: 75), () {
+          setState(() {
+            noteTimeout = true;
+          });
         });
 
         print("${res.note} ${relHalfs} $carnaticOctave ${carnaticNote}");
@@ -196,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
               text: TextSpan(
                   style: TextStyle(
-                    color: carnaticOctave > 0 ? Colors.blue : Colors.white,
+                    color: noteTimeout? Colors.white: (carnaticOctave > 0 ? Colors.blue : Colors.white),
                     fontSize: 75,
                     fontFamily: 'Arial',
 
@@ -228,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
               text: TextSpan(
                   style: TextStyle(
-                    color: carnaticOctave < 0 ? Colors.blue : Colors.white,
+                    color: noteTimeout? Colors.white: (carnaticOctave < 0 ? Colors.blue : Colors.white),
                     fontSize: 75,
                     fontFamily: 'Arial',
 
@@ -260,13 +290,13 @@ class _MyHomePageState extends State<MyHomePage> {
     for (CarnaticNote note in carnaticNote) {
       if (cnt == 1) {
         noteWidgets.add(RichText(
-            text: const TextSpan(
+            text: TextSpan(
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: noteTimeout? Colors.white: Colors.grey,
                   fontSize: 75,
                   fontFamily: 'Arial',
                 ),
-                children: [
+                children: const [
               TextSpan(
                 text: "/",
               )
@@ -277,8 +307,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ...createUpperDots(),
         RichText(
             text: TextSpan(
-                style: const TextStyle(
-                  color: Colors.blue,
+                style: TextStyle(
+                  color: noteTimeout? Colors.white: Colors.blue,
                   fontSize: 75,
                   fontFamily: 'Arial',
                 ),
@@ -291,10 +321,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   offset: const Offset(0.0, -7.0),
                   child: Text(
                     note.subscript != null ? note.subscript.toString() : "",
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 30,
                         fontFamily: 'RobotoMono',
-                        color: Colors.grey),
+                        color: noteTimeout? Colors.white: Colors.grey),
                   ),
                 ),
               )
@@ -306,11 +336,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
     widgets.add(SliderTheme(
         data: SliderTheme.of(context).copyWith(
-          activeTrackColor: centsColor(centsOff),
-          inactiveTrackColor: centsColor(centsOff),
+          activeTrackColor: noteTimeout? Colors.grey :  centsColor(centsOff),
+          inactiveTrackColor: noteTimeout? Colors.grey : centsColor(centsOff),
           trackShape: CustomTrackShape(),
           trackHeight: 27,
-          thumbColor: centsColor(centsOff),
+          thumbColor: noteTimeout? Colors.grey : centsColor(centsOff),
           thumbShape:
               CustomSliderThumbCircle(thumbRadius: 15, max: 50, min: -50),
           overlayColor: Colors.red.withAlpha(32),
@@ -319,7 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Slider(
           min: 0.0,
           max: 100.0,
-          value: 50.0 - centsOff,
+          value: noteTimeout? 50.0: (50.0 - centsOff),
           onChanged: (value) {},
         )));
 
@@ -381,7 +411,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
+          title: Text("${widget.title} - ${showNotes[activeShruti]}"),
         ),
         body: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -407,5 +437,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     super.dispose();
+    _delay?.cancel();
   }
 }
