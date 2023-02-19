@@ -73,8 +73,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  int activeShruti = 5;
+  int activeShruti = 4;
   int tonicOctave = 4;
   bool melakarta = false;
   FlutterSoundRecorder myRecorder = FlutterSoundRecorder();
@@ -101,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
     "B"
   ];
 
-  late Map<String , dynamic> ragas = {};
+  late Map<String, dynamic> ragas = {};
 
   Future<void> loadRagas() async {
     var data = await rootBundle.loadString("assets/ragas.json");
@@ -109,8 +108,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ragas = json.decode(data);
     });
   }
-
-
 
   List<List<CarnaticNote>> relatives = [
     [CarnaticNote("S", 0, "Shadjam", null)],
@@ -178,15 +175,12 @@ class _MyHomePageState extends State<MyHomePage> {
           double tOctave = relHalfs / 12;
           if (tOctave < 0) {
             carnaticOctave = tOctave.floor();
-          }
-          else {
+          } else {
             carnaticOctave = tOctave.toInt();
           }
 
-
           centsOff = res.diffCents;
           noteTimeout = false;
-
         });
 
         _delay?.cancel();
@@ -223,56 +217,30 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> createUpperDots() {
     return [
       Container(
-        child: Positioned(bottom: SizeConfig.screenHeight * 0.0248, child: RichText(
-
-              text: TextSpan(
-                  style: TextStyle(
-                    color: noteTimeout? Colors.white.withOpacity(0): (carnaticOctave > 0 ? Colors.blue : Colors.white.withOpacity(0)),
-                    fontSize: SizeConfig.screenHeight * 0.11,
-                    fontFamily: 'Arial',
-
-                  ),
-                  children: [
-            TextSpan(
-              text: carnaticOctave > 1? "¨": "˙",
-
-            ),
-                    WidgetSpan(
-                      child:
-                       Text(
-                          carnaticNote.every((e) {return e.subscript == null;})? "": "1",
-                          style: TextStyle(
-                              fontSize: SizeConfig.screenHeight * 0.045,
-                              fontFamily: 'RobotoMono',
-                              color: Colors.white.withOpacity(0)),
-                        ),
-                    )
-          ]))))
-    ];
-
-  }
-
-  List<Widget> createLowerDots() {
-    return [
-      Container(
-          child: Positioned(bottom: SizeConfig.screenHeight * -0.0951, child: RichText(
-
-              text: TextSpan(
-                  style: TextStyle(
-                    color: noteTimeout? Colors.white.withOpacity(0): (carnaticOctave < 0 ? Colors.blue : Colors.white.withOpacity(0)),
-                    fontSize: SizeConfig.screenHeight * 0.11,
-                    fontFamily: 'Arial',
-
-                  ),
-                  children: [
+          child: Positioned(
+              bottom: SizeConfig.screenHeight * 0.0248,
+              child: RichText(
+                  text: TextSpan(
+                      style: TextStyle(
+                        color: noteTimeout
+                            ? Colors.white.withOpacity(0)
+                            : (carnaticOctave > 0
+                                ? Colors.blue
+                                : Colors.white.withOpacity(0)),
+                        fontSize: SizeConfig.screenHeight * 0.11,
+                        fontFamily: 'Arial',
+                      ),
+                      children: [
                     TextSpan(
-                      text: carnaticOctave < -1? "¨": "˙",
-
+                      text: carnaticOctave > 1 ? "¨" : "˙",
                     ),
                     WidgetSpan(
-                      child:
-                      Text(
-                        carnaticNote.every((e) {return e.subscript == null;})? "": "1",
+                      child: Text(
+                        carnaticNote.every((e) {
+                          return e.subscript == null;
+                        })
+                            ? ""
+                            : "1",
                         style: TextStyle(
                             fontSize: SizeConfig.screenHeight * 0.045,
                             fontFamily: 'RobotoMono',
@@ -281,7 +249,43 @@ class _MyHomePageState extends State<MyHomePage> {
                     )
                   ]))))
     ];
+  }
 
+  List<Widget> createLowerDots() {
+    return [
+      Container(
+          child: Positioned(
+              bottom: SizeConfig.screenHeight * -0.0951,
+              child: RichText(
+                  text: TextSpan(
+                      style: TextStyle(
+                        color: noteTimeout
+                            ? Colors.white.withOpacity(0)
+                            : (carnaticOctave < 0
+                                ? Colors.blue
+                                : Colors.white.withOpacity(0)),
+                        fontSize: SizeConfig.screenHeight * 0.11,
+                        fontFamily: 'Arial',
+                      ),
+                      children: [
+                    TextSpan(
+                      text: carnaticOctave < -1 ? "¨" : "˙",
+                    ),
+                    WidgetSpan(
+                      child: Text(
+                        carnaticNote.every((e) {
+                          return e.subscript == null;
+                        })
+                            ? ""
+                            : "1",
+                        style: TextStyle(
+                            fontSize: SizeConfig.screenHeight * 0.045,
+                            fontFamily: 'RobotoMono',
+                            color: Colors.white.withOpacity(0)),
+                      ),
+                    )
+                  ]))))
+    ];
   }
 
   List<Widget> createNoteDisplay() {
@@ -293,7 +297,8 @@ class _MyHomePageState extends State<MyHomePage> {
         noteWidgets.add(RichText(
             text: TextSpan(
                 style: TextStyle(
-                  color: noteTimeout? Colors.white.withOpacity(0): Colors.grey,
+                  color:
+                      noteTimeout ? Colors.white.withOpacity(0) : Colors.grey,
                   fontSize: SizeConfig.screenHeight * 0.11,
                   fontFamily: 'Arial',
                 ),
@@ -303,54 +308,61 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             ])));
       }
-      noteWidgets
-          .add(Stack( alignment: Alignment.center, clipBehavior: Clip.none, children: [
-        ...createUpperDots(),
-        RichText(
-            text: TextSpan(
-                style: TextStyle(
-                  color: noteTimeout? Colors.white.withOpacity(0): Colors.blue,
-                  fontSize: SizeConfig.screenHeight * 0.11,
-                  fontFamily: 'Arial',
-                ),
-                children: [
-              TextSpan(
-                text: note.note,
-              ),
-              WidgetSpan(
-                child: Transform.translate(
-                  offset: Offset(0.0, SizeConfig.screenHeight * -0.0102),
-                  child: Text(
-                    note.subscript != null ? note.subscript.toString() : "",
+      noteWidgets.add(Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            ...createUpperDots(),
+            RichText(
+                text: TextSpan(
                     style: TextStyle(
-                        fontSize: SizeConfig.screenHeight * 0.045,
-                        fontFamily: 'RobotoMono',
-                        color: noteTimeout? Colors.white.withOpacity(0): Colors.grey),
+                      color: noteTimeout
+                          ? Colors.white.withOpacity(0)
+                          : Colors.blue,
+                      fontSize: SizeConfig.screenHeight * 0.11,
+                      fontFamily: 'Arial',
+                    ),
+                    children: [
+                  TextSpan(
+                    text: note.note,
                   ),
-                ),
-              )
-            ])),
-        ...createLowerDots()
-      ]));
+                  WidgetSpan(
+                    child: Transform.translate(
+                      offset: Offset(0.0, SizeConfig.screenHeight * -0.0102),
+                      child: Text(
+                        note.subscript != null ? note.subscript.toString() : "",
+                        style: TextStyle(
+                            fontSize: SizeConfig.screenHeight * 0.045,
+                            fontFamily: 'RobotoMono',
+                            color: noteTimeout
+                                ? Colors.white.withOpacity(0)
+                                : Colors.grey),
+                      ),
+                    ),
+                  )
+                ])),
+            ...createLowerDots()
+          ]));
       cnt++;
     }
 
     widgets.add(SliderTheme(
         data: SliderTheme.of(context).copyWith(
-          activeTrackColor: noteTimeout? Colors.grey :  centsColor(centsOff),
-          inactiveTrackColor: noteTimeout? Colors.grey : centsColor(centsOff),
+          activeTrackColor: noteTimeout ? Colors.grey : centsColor(centsOff),
+          inactiveTrackColor: noteTimeout ? Colors.grey : centsColor(centsOff),
           trackShape: CustomTrackShape(),
           trackHeight: SizeConfig.screenHeight * 0.038,
-          thumbColor: noteTimeout? Colors.grey : centsColor(centsOff),
-          thumbShape:
-              CustomSliderThumbCircle(thumbRadius: SizeConfig.screenHeight * 0.022, max: 50, min: -50),
+          thumbColor: noteTimeout ? Colors.grey : centsColor(centsOff),
+          thumbShape: CustomSliderThumbCircle(
+              thumbRadius: SizeConfig.screenHeight * 0.022, max: 50, min: -50),
           overlayColor: Colors.red.withAlpha(32),
-          overlayShape: RoundSliderOverlayShape(overlayRadius: SizeConfig.screenHeight * 0.0409),
+          overlayShape: RoundSliderOverlayShape(
+              overlayRadius: SizeConfig.screenHeight * 0.0409),
         ),
         child: Slider(
           min: 0.0,
           max: 100.0,
-          value: noteTimeout? 50.0: (50.0 - centsOff),
+          value: noteTimeout ? 50.0 : (50.0 - centsOff),
           onChanged: (value) {},
         )));
 
@@ -378,18 +390,16 @@ class _MyHomePageState extends State<MyHomePage> {
         rowChildren.add(SizedBox(
             height: SizeConfig.screenHeight * 0.1,
             width: SizeConfig.screenHeight * 0.1,
-
             child: FloatingActionButton(
-          onPressed: shrutiFunction(noteCounter),
-          foregroundColor: Colors.blue,
-          child: SizedBox(
-
-              child: Text(note,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: SizeConfig.screenHeight * 0.0366,
-                      fontFamily: "MusGlyphs"))),
-        )));
+              onPressed: shrutiFunction(noteCounter),
+              foregroundColor: Colors.blue,
+              child: SizedBox(
+                  child: Text(note,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: SizeConfig.screenHeight * 0.0366,
+                          fontFamily: "MusGlyphs"))),
+            )));
         noteCounter++;
       }
       children.add(Row(
@@ -422,23 +432,25 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: SafeArea(
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
               ...createNoteDisplay(),
               Center(
                   // Center is a layout widget. It takes a single child and positions it
                   // in the middle of the parent.
                   child: Container(
-                      height: SizeConfig.screenHeight * 0.4, //or whatever you want
-                      width: SizeConfig.screenWidth * 0.95, //or whatever you want
+                      height:
+                          SizeConfig.screenHeight * 0.4, //or whatever you want
+                      width:
+                          SizeConfig.screenWidth * 0.95, //or whatever you want
                       padding: EdgeInsets.all(SizeConfig.screenWidth * 0.01),
                       child: createButtonGrid())),
               //Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children:[CustomSwitch(
-                //  key: const Key("slider"),
-                  //activeColor: Colors.blue,
-                  //value: melakarta,
-                  //onChanged: setMelakarta), DropdownMenu(dropdownMenuEntries: [new DropdownMenuEntry(value: "e", label: "e")])])
+              //  key: const Key("slider"),
+              //activeColor: Colors.blue,
+              //value: melakarta,
+              //onChanged: setMelakarta), DropdownMenu(dropdownMenuEntries: [new DropdownMenuEntry(value: "e", label: "e")])])
             ])));
   }
 
