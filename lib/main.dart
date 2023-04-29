@@ -12,13 +12,9 @@ import 'package:flutter_audio_capture/flutter_audio_capture.dart';
 import 'util.dart';
 import 'package:pitchupdart/instrument_type.dart';
 import 'package:pitchupdart/pitch_handler.dart';
-import 'custom_switch.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:audio_session/audio_session.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:fftea/fftea.dart';
 import 'package:pitch_detector_dart/pitch_detector.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const int tSampleRate = 44100;
 typedef _Fn = void Function();
@@ -76,7 +72,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int activeShruti = 4;
   int tonicOctave = 4;
   bool melakarta = false;
-  FlutterSoundRecorder myRecorder = FlutterSoundRecorder();
   final pitchDetectorDart = PitchDetector(44100, 2000);
   final pitchUp = PitchHandler(InstrumentType.guitar);
   List<CarnaticNote> carnaticNote = [CarnaticNote("S", 0, "Shadjam", null)];
@@ -84,6 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
   double centsOff = 0.0;
   bool noteTimeout = true;
   Timer? _delay;
+  bool permissable = false;
+  bool dialoged = false;
+  bool denied = true;
+
+  SharedPreferences? prefs;
+
+  bool noAudio = false;
+  Timer? _audioTimer;
 
   List<String> showNotes = [
     "C",
@@ -107,6 +110,64 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       ragas = json.decode(data);
     });
+  }
+
+  Future<void> loadPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    final int? note = prefs?.getInt('note');
+    print(note);
+    if (note != null) activeShruti = note;
+  }
+
+  Future<void> savePrefs() async {
+    if (prefs != null) {
+      await prefs?.setInt('note', activeShruti);
+    }
+  }
+
+  Future<bool> requestPermission(BuildContext context) async {
+
+    if (!context.mounted) return false;
+    if (!mounted) return false;
+
+    if (await Permission.microphone.isPermanentlyDenied) {
+      openAppSettings();
+    }
+    if (await Permission.microphone.request().isGranted) {
+      setState(() {
+        permissable = true;
+      });
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).maybePop();
+      }
+      return true;
+    } else {
+      setState(() {
+        permissable = false;
+      });
+
+      if (!dialoged) {
+        showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Permission Required'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: const <Widget>[
+                      Text(
+                          'This app requires microphone permissions to function!'),
+                      Text('Please grant them in settings.'),
+                    ],
+                  ),
+                ),
+              );
+            });
+        dialoged = true;
+      }
+      return false;
+    }
   }
 
   List<List<CarnaticNote>> relatives = [
@@ -160,6 +221,8 @@ class _MyHomePageState extends State<MyHomePage> {
     //Uses pitch_detector_dart library to detect a pitch from the audio sample
     final result = pitchDetectorDart.getPitch(audioSample);
 
+    //noAudio = false;
+
     //If there is a pitch - evaluate it
     if (result.pitched) {
       final res = pitchUp.handlePitch(result.pitch);
@@ -181,9 +244,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
           centsOff = res.diffCents;
           noteTimeout = false;
+          noAudio = false;
         });
 
         _delay?.cancel();
+        _audioTimer?.cancel();
+
+        _audioTimer = Timer(const Duration(seconds: 45, milliseconds: 0), () {
+          setState(() {
+            noAudio = true;
+          });
+        });
 
         _delay = Timer(const Duration(seconds: 1, milliseconds: 75), () {
           setState(() {
@@ -192,6 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
 
         print("${res.note} ${relHalfs} $carnaticOctave ${carnaticNote}");
+        //print(noAudio);
       }
     }
   }
@@ -206,6 +278,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       activeShruti = shruti;
     });
+    savePrefs();
   }
 
   void Function() shrutiFunction(int shruti) {
@@ -346,6 +419,18 @@ class _MyHomePageState extends State<MyHomePage> {
       cnt++;
     }
 
+    //print(noAudio);
+    if (noAudio) {
+      widgets.add(RichText(
+          text: TextSpan(children: [
+        TextSpan(
+            text:
+                "The app has not received audio for a while! Is your mic working?",
+            style: TextStyle(
+                color: Colors.red, fontSize: SizeConfig.screenHeight * 0.02))
+      ])));
+    }
+
     widgets.add(SliderTheme(
         data: SliderTheme.of(context).copyWith(
           activeTrackColor: noteTimeout ? Colors.grey : centsColor(centsOff),
@@ -414,10 +499,32 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _audioTimer = Timer(const Duration(seconds: 45, milliseconds: 0), () {
+      setState(() {
+        noAudio = true;
+      });
+    });
+    loadPrefs();
+    requestPermission(context).then(( value) {if (value) {_startCapture();}});
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (!permissable) requestPermission(context).then(( value) {if (value) {_startCapture();}});
+
+    if (!permissable) {
+      return Scaffold(
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
+        ),
+      );
+    }
+
     SizeConfig().init(context);
-    _startCapture();
-    loadRagas();
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -458,5 +565,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     super.dispose();
     _delay?.cancel();
+    _audioTimer?.cancel();
+    _stopCapture();
   }
 }

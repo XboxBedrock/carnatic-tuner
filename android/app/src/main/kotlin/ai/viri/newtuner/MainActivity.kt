@@ -1,4 +1,4 @@
-package me.sushrut.newtuner
+package ai.viri.newtuner
 
 import io.flutter.embedding.android.FlutterActivity
 

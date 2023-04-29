@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.sushrut.newtuner">
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    package="ai.viri.newtuner">
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission-sdk-23 android:name="android.permission.RECORD_AUDIO"/>
+
    <application
-        android:label="newtuner"
+        android:label="Carnatic Tuner"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
