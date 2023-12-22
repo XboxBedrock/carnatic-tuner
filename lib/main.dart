@@ -15,11 +15,14 @@ import 'package:pitchupdart/pitch_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pitch_detector_dart/pitch_detector.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 const int tSampleRate = 44100;
 typedef _Fn = void Function();
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  WakelockPlus.enable();
   runApp(const MyApp());
 }
 
@@ -29,6 +32,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    WakelockPlus.enable();
     return MaterialApp(
       title: 'Carnatic Tuner',
       debugShowCheckedModeBanner: false,
@@ -126,48 +130,70 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<bool> requestPermission(BuildContext context) async {
-
     if (!context.mounted) return false;
     if (!mounted) return false;
 
-    if (await Permission.microphone.isPermanentlyDenied) {
-      openAppSettings();
-    }
-    if (await Permission.microphone.request().isGranted) {
-      setState(() {
-        permissable = true;
-      });
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).maybePop();
-      }
-      return true;
-    } else {
-      setState(() {
-        permissable = false;
-      });
+    PermissionStatus _status = await Permission.microphone.request();
+    _status = await Permission.microphone.status;
+    print(_status);
+    
 
-      if (!dialoged) {
-        showDialog<void>(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Permission Required'),
-                content: SingleChildScrollView(
-                  child: ListBody(
-                    children: const <Widget>[
-                      Text(
-                          'This app requires microphone permissions to function!'),
-                      Text('Please grant them in settings.'),
-                    ],
-                  ),
-                ),
-              );
-            });
-        dialoged = true;
+    if (_status.isPermanentlyDenied) {
+      await openAppSettings();
+      _status = await Permission.microphone.status;
+      print(_status.name);
+      if (_status.isGranted) {
+        setState(() {
+          permissable = true;
+        });
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).maybePop();
+        }
+        return true;
       }
-      return false;
+    } else {
+      if (_status.isGranted) {
+        setState(() {
+          permissable = true;
+        });
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).maybePop();
+        }
+        return true;
+      } else {
+        setState(() {
+          permissable = false;
+        });
+
+        if (!dialoged) {
+          showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Permission Required'),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: const <Widget>[
+                        Text(
+                            'This app requires microphone permissions to function!'),
+                        Text('Please grant them in settings.'),
+                      ],
+                    ),
+                  ),
+                );
+              });
+          dialoged = true;
+        }
+      }
     }
+
+    _status = await Permission.microphone.status;
+    if (_status == PermissionStatus.denied || _status == PermissionStatus.permanentlyDenied) {
+      return await requestPermission(context);
+    }
+
+    return false;
   }
 
   List<List<CarnaticNote>> relatives = [
@@ -507,12 +533,22 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     });
     loadPrefs();
-    requestPermission(context).then(( value) {if (value) {_startCapture();}});
+    requestPermission(context).then((res) {
+        Permission.microphone.isGranted.then((value) {
+        print(value);
+        if (value) {
+          _startCapture();
+          setState(() {
+            permissable = true;
+          });
+        }
+      });
+    });
+
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!permissable) requestPermission(context).then(( value) {if (value) {_startCapture();}});
 
     if (!permissable) {
       return Scaffold(

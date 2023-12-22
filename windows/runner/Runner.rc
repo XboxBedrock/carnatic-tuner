@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "me.sushrut" "\0"
+            VALUE "CompanyName", "Viri LLC" "\0"
             VALUE "FileDescription", "newtuner" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "newtuner" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 me.sushrut. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2023 Viri LLC. All rights reserved." "\0"
             VALUE "OriginalFilename", "newtuner.exe" "\0"
             VALUE "ProductName", "newtuner" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
