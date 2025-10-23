@@ -25,3 +25,5 @@ Just download the app and start playing! Select the pitch you want to tune your 
 ## Technical Brief
 
 This app was built with Flutter for cross-platform support. The FFT algorithm is used for converting the audio samples into freqency domain, to allow for precise pitch determination.
+
+The source code can be found in [`./lib`](./lib)
