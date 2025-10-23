@@ -1,16 +1,27 @@
-# newtuner
+<p align="center">
+<kbd> 
+<img src="./assets/icon/icon.png" alt="CarnaticTuner Logo" style="width:150px; height:150px; border-radius:10%;">
+</kbd>
+</p>
 
-A new Flutter project.
+# CarnaticTuner
+[![Play Store](https://img.shields.io/endpoint?color=green&logo=google-play&logoColor=green&url=https%3A%2F%2Fplay.cuzi.workers.dev%2Fplay%3Fi%3Dai.viri.newtuner%26gl%3DUS%26hl%3Den%26l%3DAndroid%26m%3D%24installs%2520Downloads)](https://play.google.com/store/apps/details?id=ai.viri.newtuner)
+[![App Store](https://img.shields.io/badge/App_Store-0D96F6?logo=app-store&logoColor=white)](https://apps.apple.com/us/app/carnatictuner/id6448685976)
 
-## Getting Started
+CarnaticTuner is the only free and open source tuner app for Carnatic instruments. Whether you play the Carnatic violin, veena, flute, sitar, or do Carnatic vocals, this app is for you!
 
-This project is a starting point for a Flutter application.
+## Features
+- Accurate Carnatic tuning with specific Carnatic pitch intervals
+- Select the base pitch easily
+- Upper bar to indicate accuracy
 
-A few resources to get you started if this is your first Flutter project:
+## How To Use
+Just download the app and start playing! Select the pitch you want to tune your instrument to! For example, most violin players tune to D# or E.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+<img src="./screenshots/IosImage.webp" alt="Ios" style="height:500px;"> <img src="./screenshots/AndroidPhone.webp" alt="Android" style="height:500px;"> <img src="./screenshots/Screenshot_20230403_111454.png" alt="Tablet" align="top" style="height:250px;">
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+
+## Technical Brief
+
+This app was built with Flutter for cross-platform support. The FFT algorithm is used for converting the audio samples into freqency domain, to allow for precise pitch determination.
